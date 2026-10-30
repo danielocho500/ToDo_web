@@ -1,0 +1,20 @@
+name: Frontend checks
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: |
+          for file in public/*.js public/*.mjs; do node --check "$file"; done
+      - run: docker build -t todo-web:test .
+      - run: docker run --rm -e BACKEND_URL=https://example.com todo-web:test nginx -t
+      - run: |
+          docker run -d --name web -p 8080:8080 -e BACKEND_URL=https://example.com todo-web:test
+          curl --retry 10 --retry-connrefused --retry-delay 1 --fail http://localhost:8080/healthz
+          curl --fail http://localhost:8080/ | grep 'To-Do Priorizer'

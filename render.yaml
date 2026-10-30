@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: todo-web
+    runtime: docker
+    plan: free
+    healthCheckPath: /healthz
+    envVars:
+      - key: BACKEND_URL
+        sync: false
