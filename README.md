@@ -45,3 +45,7 @@ No basta con publicar `public/` en GitHub Pages: esta configuración requiere el
 ## Verificación
 
 GitHub Actions revisa la sintaxis JavaScript, construye Docker, valida Nginx y comprueba la página y `/healthz`. La prueba de conexión y sesión con el backend real se realiza después de configurar las URLs de ambos despliegues.
+
+## Tareas individuales
+
+Al iniciar sesión, Mis tareas está disponible automáticamente sin crear ni elegir un grupo. Es privado y no admite invitaciones. Los grupos compartidos son opcionales y se seleccionan por separado; las tareas anteriores se conservan en su ubicación original.
