@@ -10,7 +10,15 @@ Interfaz de ToDo Priority, separada del [backend FastAPI](https://github.com/dan
 
 La interfaz llama a `/api` en su propio origen. El proxy transmite cookies y encabezados al backend, conservando las sesiones sin cookies de terceros ni CORS. La conexión HTTPS al backend verifica su certificado.
 
-## Render
+## Netlify
+
+Importa este repositorio desde GitHub, rama `main`. Deja Base directory y Build command vacíos; Publish directory es `public`.
+
+`netlify.toml` configura el proxy `/api/*` hacia `https://todo-priority.onrender.com/api/:splat`. No necesitas BACKEND_URL ni secretos de MongoDB en Netlify. Docker y Nginx se usan solo con las opciones de despliegue siguientes.
+
+Después de publicar, abre `https://TU-SITIO.netlify.app/api/health` y comprueba que devuelve `{"ok":true}`. Luego prueba iniciar sesión, guardar una tarea y recargar. Si cambia la URL del backend, actualiza `netlify.toml` y vuelve a desplegar.
+
+## Render (alternativa a Netlify)
 
 1. Despliega primero ToDo_Priority y comprueba su `/api/health`.
 2. Crea un Blueprint desde este repositorio usando `render.yaml`.
