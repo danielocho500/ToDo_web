@@ -12,6 +12,7 @@ jobs:
           node-version: '22'
       - run: |
           for file in public/*.js public/*.mjs; do node --check "$file"; done
+      - run: node --test tests/*.test.mjs
       - run: docker build -t todo-web:test .
       - run: docker run --rm -e BACKEND_URL=https://example.com todo-web:test nginx -t
       - run: |
