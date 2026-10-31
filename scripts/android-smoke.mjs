@@ -18,8 +18,8 @@ async function evaluate(expression){
  return result.result.result.value;
 }
 try {
- const info=await evaluate(`({native:!!window.ToDoNative,headingHidden:document.getElementById('authHeading').hidden,plugins:Object.keys(Capacitor.Plugins)})`);
- assert.equal(info.native,true);assert.equal(info.headingHidden,true);
+ const info=await evaluate(`({native:!!window.ToDoNative,headingHidden:document.getElementById('authHeading').hidden,googleButton:!!document.getElementById('nativeGoogleLogin'),plugins:Object.keys(Capacitor.Plugins)})`);
+ assert.equal(info.googleButton,true);assert.equal(info.native,true);assert.equal(info.headingHidden,true);
  for(const plugin of ['GoogleAuth','CapacitorHttp','Filesystem','Share'])assert.ok(info.plugins.includes(plugin));
  const network=await evaluate(`(async()=>{
   const response=await ToDoNative.request('/api/auth/config',{method:'GET',headers:{'X-Requested-With':'todo-priorizer'}});

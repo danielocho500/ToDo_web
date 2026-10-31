@@ -39,18 +39,20 @@ window.addEventListener('beforeunload',e=>{if(busy||failed){e.preventDefault();e
 }
 
 async function initGoogle(){
+ if(window.ToDoNative){
+  const button=document.createElement('button');button.id='nativeGoogleLogin';button.type='button';button.textContent='Iniciar sesión con Google';
+  button.onclick=async()=>{button.disabled=true;$('authError').textContent='';$('googleStatus').textContent='Conectando con Google…';try{
+   const config=await api('/auth/config');
+   if(!config.google_client_id)throw Error('El acceso con Google no está configurado.');
+   const result=await window.ToDoNative.signIn(config.google_client_id);
+   await api('/auth/google','POST',{credential:result.credential,password:$('authPassword').value||undefined});
+   $('authPassword').value='';await enter();
+  }catch(e){$('authError').textContent=e.message;}finally{button.disabled=false;$('googleStatus').textContent='';}};
+  $('googleLogin').appendChild(button);return;
+ }
  try{
   const config=await api('/auth/config');
   if(!config.google_client_id)return;
-  if(window.ToDoNative){
-   const button=document.createElement('button');button.type='button';button.textContent='Iniciar sesión con Google';
-   button.onclick=async()=>{button.disabled=true;$('authError').textContent='';try{
-    const result=await window.ToDoNative.signIn(config.google_client_id);
-    await api('/auth/google','POST',{credential:result.credential,password:$('authPassword').value||undefined});
-    $('authPassword').value='';await enter();
-   }catch(e){$('authError').textContent=e.message;}finally{button.disabled=false;}};
-   $('googleLogin').appendChild(button);return;
-  }
   const script=document.createElement('script');script.src='https://accounts.google.com/gsi/client';script.async=true;
   script.onerror=()=>{$('googleStatus').textContent='No se pudo cargar Google. Puedes usar correo o entrar como invitado.';};
   script.onload=()=>{
