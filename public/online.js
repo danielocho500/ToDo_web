@@ -40,7 +40,7 @@ window.addEventListener('beforeunload',e=>{if(busy||failed){e.preventDefault();e
 
 async function initGoogle(){
  if(window.ToDoNative){
-  const button=document.createElement('button');button.id='nativeGoogleLogin';button.type='button';button.textContent='Iniciar sesión con Google';
+  const button=document.createElement('button');button.id='nativeGoogleLogin';button.type='button';button.innerHTML='<img src="google-mark.svg" width="20" height="20" alt="" aria-hidden="true"><span>Iniciar sesión con Google</span>';
   button.onclick=async()=>{button.disabled=true;$('authError').textContent='';$('googleStatus').textContent='Conectando con Google…';try{
    const config=await api('/auth/config');
    if(!config.google_client_id)throw Error('El acceso con Google no está configurado.');
