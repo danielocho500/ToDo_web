@@ -12,7 +12,7 @@ export function requestEdit(){
  if(!active){$('notice').textContent='Tus tareas aún no están disponibles. Recarga la página para volver a cargarlas.';return false;}
  return true;
 }
-async function api(path,method='GET',body){if(guest)throw Error('Inicia sesión para acceder a grupos.');const response=await fetch('/api'+path,{method,credentials:'same-origin',headers:{'Content-Type':'application/json','X-Requested-With':'todo-priorizer'},...(body===undefined?{}:{body:JSON.stringify(body)})});if(!response.ok){const data=await response.json().catch(()=>({}));if(response.status===401&&user){user=null;$('authScreen').hidden=false;}throw Error(typeof data.detail==='string'?data.detail:response.status===422?'Revisa los datos: hay un campo inválido.':'No se pudo completar la solicitud.');}return response.json();}
+async function api(path,method='GET',body){if(guest)throw Error('Inicia sesión para acceder a grupos.');const response=await (window.ToDoNative?.request||fetch)('/api'+path,{method,credentials:'same-origin',headers:{'Content-Type':'application/json','X-Requested-With':'todo-priorizer'},...(body===undefined?{}:{body:JSON.stringify(body)})});if(!response.ok){const data=await response.json().catch(()=>({}));if(response.status===401&&user){user=null;$('authScreen').hidden=false;}throw Error(typeof data.detail==='string'?data.detail:response.status===422?'Revisa los datos: hay un campo inválido.':'No se pudo completar la solicitud.');}return response.json();}
 function status(text){$('syncStatus').textContent=text;}
 export async function queueSave(state){if(!active||busy||failed)return;if(guest){try{localStorage.setItem(guestKey,JSON.stringify(state));status('Guardado solo en este navegador');}catch(e){failed=true;status('No se pudo guardar en este navegador');$('notice').textContent='Exporta el JSON antes de salir para conservar tus cambios.';}return;}busy=true;status('Guardando…');const backup=structuredClone(state);try{const result=await api('/spaces/'+active.id+'/state','PUT',{revision,state:backup});revision=result.revision;status('Guardado');}catch(e){failed=true;status('Cambios sin guardar');$('notice').textContent=e.message+' Exporta el JSON para conservar estos cambios y recarga la página.';}finally{busy=false;}}
 async function load(id){const result=await api('/spaces/'+id+'/state');if(guest)return;active=result.space;revision=result.revision;failed=false;hooks.apply(result.state);status('Sincronizado');$('spaces').value=id;}
@@ -28,10 +28,10 @@ $('spaces').onchange=async()=>{const id=$('spaces').value;if(busy||failed){$('sp
 $('account').onclick=()=>{accountView();$('accountError').textContent='';$('accountDialog').showModal();};$('closeAccount').onclick=()=>$('accountDialog').close();
 $('createSpaceForm').onsubmit=async e=>{e.preventDefault();try{const space=await api('/spaces','POST',{name:$('spaceName').value});$('spaceName').value='';await refreshSpaces(space.id);$('accountError').textContent='Grupo creado.';}catch(e){$('accountError').textContent=e.message;}};
 $('joinSpaceForm').onsubmit=async e=>{e.preventDefault();try{let token=$('inviteInput').value.trim();if(token.includes('#'))token=new URLSearchParams(token.split('#')[1]).get('invite')||'';const joined=await api('/invites/accept','POST',{token});$('inviteInput').value='';await refreshSpaces(joined.id);$('accountError').textContent='Ya eres parte del grupo.';}catch(e){$('accountError').textContent=e.message;}};
-$('inviteButton').onclick=async()=>{try{const result=await api('/spaces/'+active.id+'/invites','POST');$('inviteResult').value=location.origin+'/#invite='+encodeURIComponent(result.token);$('inviteResultLabel').hidden=false;$('accountError').textContent='Válida por 48 horas. Quien tenga el enlace puede unirse.';$('inviteResult').select();}catch(e){$('accountError').textContent=e.message;}};
+$('inviteButton').onclick=async()=>{try{const result=await api('/spaces/'+active.id+'/invites','POST');$('inviteResult').value=(window.ToDoNative?'https://todopriorityweb.netlify.app':location.origin)+'/#invite='+encodeURIComponent(result.token);$('inviteResultLabel').hidden=false;$('accountError').textContent='Válida por 48 horas. Quien tenga el enlace puede unirse.';$('inviteResult').select();}catch(e){$('accountError').textContent=e.message;}};
 $('revokeInvites').onclick=async()=>{try{await api('/spaces/'+active.id+'/invites','DELETE');$('inviteResultLabel').hidden=true;$('accountError').textContent='Invitaciones revocadas.';}catch(e){$('accountError').textContent=e.message;}};
 $('members').onclick=async e=>{const b=e.target.closest('[data-remove]');if(!b||!confirm('¿Quitar a esta persona del grupo?'))return;try{await api('/spaces/'+active.id+'/members/'+b.dataset.remove,'DELETE');await refreshSpaces();}catch(e){$('accountError').textContent=e.message;}};
-$('logout').onclick=async()=>{if(busy){$('notice').textContent='Espera a que termine de guardar antes de salir.';return;}if(guest){if(failed&&!confirm('Hay cambios sin guardar. Exporta el JSON antes de salir. ¿Salir de todos modos?'))return;location.reload();return;}if(failed&&!confirm('Tienes cambios sin guardar. ¿Cerrar sesión?'))return;try{await api('/auth/logout','POST');location.reload();}catch(e){$('accountError').textContent=e.message;$('notice').textContent=e.message;}};
+$('logout').onclick=async()=>{if(busy){$('notice').textContent='Espera a que termine de guardar antes de salir.';return;}if(guest){if(failed&&!confirm('Hay cambios sin guardar. Exporta el JSON antes de salir. ¿Salir de todos modos?'))return;location.reload();return;}if(failed&&!confirm('Tienes cambios sin guardar. ¿Cerrar sesión?'))return;try{await api('/auth/logout','POST');if(window.ToDoNative)await window.ToDoNative.signOut();location.reload();}catch(e){$('accountError').textContent=e.message;$('notice').textContent=e.message;}};
 initGoogle();
 try{await enter();}catch(e){if(user){$('authError').textContent=e.message;$('authScreen').hidden=false;}else if(!guest)$('authScreen').hidden=false;}
 setInterval(async()=>{if(!user||!active||busy||failed||hooks.isEditing()||document.hidden)return;try{const result=await api('/spaces/'+active.id+'/state');if(result.revision!==revision){active=result.space;revision=result.revision;hooks.apply(result.state);status('Sincronizado');}}catch(e){status(e.message);}},15000);
@@ -42,6 +42,15 @@ async function initGoogle(){
  try{
   const config=await api('/auth/config');
   if(!config.google_client_id)return;
+  if(window.ToDoNative){
+   const button=document.createElement('button');button.type='button';button.textContent='Iniciar sesión con Google';
+   button.onclick=async()=>{button.disabled=true;$('authError').textContent='';try{
+    const result=await window.ToDoNative.signIn(config.google_client_id);
+    await api('/auth/google','POST',{credential:result.credential,password:$('authPassword').value||undefined});
+    $('authPassword').value='';await enter();
+   }catch(e){$('authError').textContent=e.message;}finally{button.disabled=false;}};
+   $('googleLogin').appendChild(button);return;
+  }
   const script=document.createElement('script');script.src='https://accounts.google.com/gsi/client';script.async=true;
   script.onerror=()=>{$('googleStatus').textContent='No se pudo cargar Google. Puedes usar correo o entrar como invitado.';};
   script.onload=()=>{

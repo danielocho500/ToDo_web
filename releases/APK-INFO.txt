@@ -1,0 +1,13 @@
+ToDo Priority - APK de prueba
+Paquete: com.todopriority.app
+Version: 1.0 (1)
+Android minimo: 7.0 (API 24)
+Firma: Android Debug
+SHA-1: F9:89:5E:70:9C:95:53:8B:9E:A3:FB:0B:AE:B2:C6:ED:53:46:5B:40
+
+Google Cloud: crear cliente OAuth Android en el mismo proyecto de la web, con el paquete y SHA-1 indicados. Mantener el cliente web existente en el backend.
+
+Probado: instalacion en emulador API 34, plugins nativos, conexion HTTPS a la API, crear tarea local, persistencia al recargar, bloqueo de grupos para invitado y ausencia del puntaje en las tarjetas.
+Pendiente: acceso con cuenta real de Google, que requiere registrar el cliente Android.
+
+SHA-256 del archivo APK: 1085024A833E3B99A26CCC2539D59E153A44C30F06FC884A81A0FB50D4FBAD45

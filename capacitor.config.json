@@ -1,0 +1,7 @@
+{
+  "appId": "com.todopriority.app",
+  "appName": "ToDo Priority",
+  "webDir": "public",
+  "android": {"backgroundColor": "#f7f8f5"},
+  "plugins": {"CapacitorHttp": {"enabled": true}}
+}

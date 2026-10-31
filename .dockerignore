@@ -3,3 +3,9 @@
 .env
 .env.*
 tests
+
+node_modules
+android
+.tools
+releases
+scripts
