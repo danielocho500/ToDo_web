@@ -47,7 +47,7 @@ async function initGoogle(){
   script.onload=()=>{
    google.accounts.id.initialize({client_id:config.google_client_id,callback:async result=>{
     $('authError').textContent='';
-    try{await api('/auth/google','POST',{credential:result.credential});await enter();}catch(e){$('authError').textContent=e.message;}
+    try{await api('/auth/google','POST',{credential:result.credential,password:$('authPassword').value||undefined});$('authPassword').value='';await enter();}catch(e){$('authError').textContent=e.message;}
    }});
    google.accounts.id.renderButton($('googleLogin'),{theme:'outline',size:'large',text:'signin_with',locale:'es'});
   };
