@@ -48,4 +48,6 @@ GitHub Actions revisa la sintaxis JavaScript, construye Docker, valida Nginx y c
 
 ## Tareas individuales
 
+La prioridad usa valor relativo (beneficio × 2 + penalización × 1), dividido entre costo relativo × 1 + riesgo relativo × 0.5. Se mantiene el multiplicador de urgencia por fecha. Las listas con los antiguos pesos 1/1/1/1 se actualizan al cargarlas; los pesos personalizados se conservan. Los nuevos pesos se guardan con la siguiente edición de la lista, tanto en modo invitado como con sesión. «Ver puntuación» muestra los pesos y el efecto de la fecha.
+
 Al iniciar sesión, Mis tareas está disponible automáticamente sin crear ni elegir un grupo. Es privado y no admite invitaciones. Los grupos compartidos son opcionales y se seleccionan por separado; las tareas anteriores se conservan en su ubicación original.
